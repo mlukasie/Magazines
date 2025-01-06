@@ -1,6 +1,6 @@
-from MagazineWare import MagazineWare
+from Ware import Ware
 from typing import List
 
 class Chromosome:
-    def __init__(self, wares: List[MagazineWare]):
+    def __init__(self, wares: List[Ware]):
         self.wares = wares
