@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 
 
 class FieldStatus(Enum):
@@ -10,5 +10,12 @@ class FieldStatus(Enum):
 
 
 class Orientation(Enum):
-    VERTICAL = 'VERTICAL'
-    HORIZONTAL = 'HORIZONTAL'
+    VERTICAL = auto()
+    HORIZONTAL = auto()
+
+
+class MutationType(Enum):
+    ORIENTATION = auto()
+    EXISTENCE = auto()
+    POSITION_X = auto()
+    POSITION_Y = auto()
