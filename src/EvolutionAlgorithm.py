@@ -1,6 +1,6 @@
 from Magazine import Magazine
 from Chromosome import Chromosome
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from random import choice, sample, random
 import numpy as np
 
@@ -14,7 +14,10 @@ class EvolutionAlgorithm:
                         mutation_rate: float,
                         mutation_weights: List[float],
                         crossover_rate: float,
-                        episodes: int):
+                        episodes: int,
+                        eval_func_factors: List,
+                        name: str):
+        self.eval_func_factors = eval_func_factors
         self.magazine = Magazine(vertices=vertices)
         self.population_size = population_size
         self.chromosomes = [Chromosome(wares=wares, matrix_shape=self.magazine.matrix.shape) for wares in
@@ -26,16 +29,22 @@ class EvolutionAlgorithm:
         self.mutation_weights = mutation_weights
         self.crossover_rate = crossover_rate
         self.episodes = episodes
+        self.name = name
 
     def evaluate_chromosome(self, chromosome: Chromosome):
         new_matrix, filled_space, collisions, wall_collisions, something_nearby = self.magazine.fill_magazine_with_wares(wares=chromosome.wares)
         chromosome.matrix = new_matrix
-        value = filled_space - 10*wall_collisions - 10*collisions - 2*something_nearby
+        value = (self.eval_func_factors[0]*filled_space -
+                 self.eval_func_factors[1]*wall_collisions -
+                 self.eval_func_factors[2]*collisions -
+                 self.eval_func_factors[3]*something_nearby)
         return value
 
     def mutate(self):
+        self.elites = self.get_best()
         for chromosome in self.chromosomes:
             chromosome.mutate(self.mutation_rate, self.mutation_weights)
+        self.chromosomes += self.elites
 
     def get_best(self):
         self.chromosomes.sort(key=self.evaluate_chromosome, reverse=True)
@@ -62,13 +71,13 @@ class EvolutionAlgorithm:
         self.chromosomes = new_population
 
     def run(self):
-        for i in range(self.episodes):
+        for i in range(self.episodes+1):
             print(f'Episode {i} '
                   f'Best result: {self.evaluate_chromosome(self.elites[0])}')
             self.mutate()
-            print('turnament')
             self.tournament_selection()
-            print('reproduction')
             self.reproduce()
-            self.magazine.save_magazine_to_image(matrix=self.elites[0].matrix, wares=self.elites[0].wares, filename=f'output/{i}.png')
+            self.magazine.save_magazine_to_image(matrix=self.elites[0].matrix, wares=self.elites[0].wares,
+                                                 filename=f'output/{i}.png')
+
 

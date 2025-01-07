@@ -50,7 +50,7 @@ class Magazine:
                                        x=randint(0, matrix_length - 1),
                                        y=randint(0, matrix_width - 1),
                                        orientation=choice([Orientation.VERTICAL, Orientation.HORIZONTAL]),
-                                       is_present=choices([True, False], weights=[75, 25])[0],
+                                       is_present=choices([True, False], weights=[95, 5])[0],
                                        id=ware_id))
         return magazine_wares
 
