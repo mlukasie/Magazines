@@ -3,6 +3,8 @@ from shapely.geometry import Polygon, Point
 from typing import List, Tuple
 from random import randint, choice, choices
 import pygame
+from copy import deepcopy
+from os import path, makedirs
 
 from Ware import Ware
 from Enums import Orientation, FieldStatus
@@ -50,12 +52,15 @@ class Magazine:
                                        x=randint(0, matrix_length - 1),
                                        y=randint(0, matrix_width - 1),
                                        orientation=choice([Orientation.VERTICAL, Orientation.HORIZONTAL]),
-                                       is_present=choices([True, False], weights=[95, 5])[0],
+                                       is_present=choices([True, False], weights=[60, 40])[0],
                                        id=ware_id))
         return magazine_wares
 
     @staticmethod
     def save_magazine_to_image(matrix: np.ndarray, wares: List[Ware] = None, filename: str = "magazine.png") -> None:
+        directory = path.dirname(filename)
+        if directory and not path.exists(directory):
+            makedirs(directory)
         pygame.init()
 
         max_size = 500
@@ -97,7 +102,7 @@ class Magazine:
         :param wares:
         :return:
         """
-        new_matrix = self.matrix.copy()
+        new_matrix = deepcopy(self.matrix)
         collisions = 0
         wall_collisions = 0
         something_nearby = 0
