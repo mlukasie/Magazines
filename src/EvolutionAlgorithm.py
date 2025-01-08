@@ -138,7 +138,7 @@ class EvolutionAlgorithm:
 
             if best_score > previous_best:
                 stagnate = 0
-            else:
+            elif stagnate < 20:
                 stagnate += 1
             self._mutate_best(count, stagnate)
             previous_best = best_score
@@ -146,8 +146,8 @@ class EvolutionAlgorithm:
             if i % 5 == 0:
                 self.magazine.save_magazine_to_image(matrix=best_chromosome.matrix, wares=best_chromosome.wares,
                                                         filename=f'output/{self.name}/{i}.png')
-            if stagnate == 20:
-                break
+            # if stagnate == 20:
+            #     break
 
         best_chromosome = self._get_best()[0]
         self.magazine.save_magazine_to_image(matrix=best_chromosome.matrix, wares=best_chromosome.wares,
