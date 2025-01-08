@@ -4,6 +4,7 @@ from typing import List
 from random import random, randint, choices, choice
 
 
+
 class Chromosome:
     def __init__(self, wares: List[Ware], matrix_shape):
         self.wares = wares
@@ -42,11 +43,27 @@ class Chromosome:
                 existence = False if existence else True
                 ware.is_present = existence
 
-    def crossover(self, other: 'Chromosome') -> 'Chromosome':
+    def crossover_one_point(self, other: 'Chromosome') -> 'Chromosome':
+        """One-point crossover"""
         cross_point = randint(1, len(self.wares) - 1)
         child1 = Chromosome(self.wares[0:cross_point] + other.wares[cross_point:], matrix_shape=self.matrix_shape)
         child2 = Chromosome(other.wares[0:cross_point] + self.wares[cross_point:], matrix_shape=self.matrix_shape)
         return choice([child1, child2])
+
+
+    def crossover_two_point(self, other: 'Chromosome') -> 'Chromosome':
+        """Two-point crossover."""
+        point1 = randint(0, len(self.wares) - 2)
+        point2 = randint(point1 + 1, len(self.wares) - 1)
+
+        child_wares = (
+                self.wares[:point1] +
+                other.wares[point1:point2 + 1] +
+                self.wares[point2 + 1:]
+        )
+
+        return Chromosome(wares=child_wares, matrix_shape=self.matrix_shape)
+
 
 
 
