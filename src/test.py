@@ -96,7 +96,7 @@ def test_crossover_selection_methods():
                                            mutation_rate=0.1,
                                            mutation_weights=[0.4, 0.4, 0.1, 0.2],
                                            crossover_rate=0.4,
-                                           episodes=1,
+                                           episodes=50,
                                            name=name,
                                            eval_func_factors=[5, 7, 4, 2],
                                            selection_func=selection_func,
