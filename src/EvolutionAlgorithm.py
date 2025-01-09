@@ -105,7 +105,7 @@ class EvolutionAlgorithm:
         new_count = int(count*(1.1**stagnate))
         best = self._get_best()[0]
         to_mutate = [deepcopy(best) for _ in range(new_count)]
-        for _ in range(5):
+        for _ in range(5 + stagnate//2):
             for chromosome in to_mutate:
                 chromosome.mutate(0.8, self.mutation_weights)
         best_mutated = self._get_best(to_mutate)[0]

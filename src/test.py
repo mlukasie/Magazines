@@ -180,8 +180,75 @@ def test_parameters():
 
             print(f"Results for {name} have been saved")
 
-def plot_crossover_selection_methods():
-    results_directory = 'output/results/'
+
+def test_on_different_magazines():
+    vertices1 = [(0, 0), (0, 3), (5, 5), (5, 7), (0, 7), (0, 10), (12, 12), (12, 0)]
+    vertices2 = [(0, 0), (0, 10), (10, 10), (10, 0)]
+    vertices3 = [(2, 0), (2, 2), (0, 2), (0, 5), (2, 5), (2, 8), (5, 8), (5, 5), (8, 5), (8, 2), (5, 2), (5, 0)]
+
+    wares_data1 = [(1, 1), (1, 1), (1, 1), (1, 1), (1, 1),
+                  (1, 2), (1, 2), (1, 2), (1, 2), (1, 2),
+                  (2, 2), (2, 2), (2, 2), (2, 2), (2, 2),
+                  (2, 3), (4, 3), (3, 3), (3, 3), (3, 3), (3, 3)]
+
+    wares_data2 = [(1, 1), (1, 1), (1, 1), (1, 1), (1, 1),
+                  (1, 2), (1, 2), (1, 2), (1, 2), (1, 2),
+                  (2, 2), (2, 2), (2, 2), (2, 2), (2, 2),
+                  (1, 2), (1, 2), (1, 2), (1, 2), (1, 2),
+                  (2, 3), (2, 3)
+                  ]
+
+    test_values = {
+        'vertices1_wares1': (vertices1, wares_data1),
+        'vertices2_wares1': (vertices2, wares_data1),
+        'vertices3_wares1': (vertices3, wares_data1),
+        'vertices1_wares2': (vertices1, wares_data2),
+        'vertices2_wares2': (vertices2, wares_data2),
+        'vertices3_wares2': (vertices3, wares_data2),
+    }
+
+
+    for key in test_values.keys():
+        for iteration in range(5):
+            name = key
+            vertices = test_values[key][0]
+            wares_data = test_values[key][1]
+            print(f'{name}: iteration {iteration}')
+
+            algorithm = EvolutionAlgorithm(vertices=vertices,
+                                           wares_data=wares_data,
+                                           population_size=3000,
+                                           tournament_size=3,
+                                           elite_size=1,
+                                           mutation_rate=0.3,
+                                           mutation_weights=[0.4, 0.4, 0.2, 0.4],
+                                           crossover_rate=0.75,
+                                           episodes=75,
+                                           name=name,
+                                           eval_func_factors=[5, 7, 4, 2],
+                                           selection_func=EvolutionAlgorithm._roulette_selection,
+                                           crossover_func=EvolutionAlgorithm.two_point_crossover
+                                           )
+
+            best_dict, avg_quality_dict = algorithm.run(verbose=True)
+
+            results_directory = f'output/results_different_magazines/'
+            if not path.exists(results_directory):
+                makedirs(results_directory)
+
+            best_dict_filename = path.join(results_directory, f"{name}_{iteration}_best_dict.json")
+            avg_quality_dict_filename = path.join(results_directory, f"{name}_{iteration}_avg_quality_dict.json")
+
+            with open(best_dict_filename, 'w') as best_file:
+                json.dump(best_dict, best_file, indent=4)
+
+            with open(avg_quality_dict_filename, 'w') as avg_quality_file:
+                json.dump(avg_quality_dict, avg_quality_file, indent=4)
+
+            print(f"Results for {name} have been saved")
+
+def plot_results():
+    results_directory = 'output/results_parameters/'
 
     if not os.path.exists(results_directory):
         print(f"Directory {results_directory} does not exist. Run the test first.")
@@ -192,7 +259,7 @@ def plot_crossover_selection_methods():
 
     for filename in os.listdir(results_directory):
         if filename.endswith("_best_dict.json"):
-            method_name = '_'.join(filename.split("_")[:2])
+            method_name = '_'.join(filename.split("_")[:-3])
             with open(os.path.join(results_directory, filename), 'r') as f:
                 best_dict = json.load(f)
             if method_name not in all_best_scores:
@@ -200,7 +267,7 @@ def plot_crossover_selection_methods():
             all_best_scores[method_name].append(best_dict)
 
         elif filename.endswith("_avg_quality_dict.json"):
-            method_name = '_'.join(filename.split("_")[:2])
+            method_name = '_'.join(filename.split("_")[:-4])
             with open(os.path.join(results_directory, filename), 'r') as f:
                 avg_quality_dict = json.load(f)
             if method_name not in all_avg_qualities:
@@ -287,4 +354,4 @@ def check():
 
 
 if __name__ == '__main__':
-    test_parameters()
+    test_on_different_magazines()
