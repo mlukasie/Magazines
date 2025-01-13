@@ -19,22 +19,35 @@ class EvolutionAlgorithm:
                         crossover_func,
                         episodes: int,
                         eval_func_factors: List,
+                        starting_population: bool,
+                        mutate_best: bool,
                         name: str):
+        self.starting_population = starting_population
+        self.mutate_best = mutate_best
+        self.elite_size = elite_size
         self.crossover_func = crossover_func
         self.selection_func = selection_func
-        self.eval_func_factors = eval_func_factors
-        self.magazine = Magazine(vertices=vertices)
         self.population_size = population_size
         self.wares_data = wares_data
-        self.chromosomes = [Chromosome(wares=wares, matrix_shape=self.magazine.matrix.shape) for wares in
-                            [self.magazine.generate_magazine_wares(wares_data=wares_data) for _ in range(self.population_size)]]
-        self.elite_size = elite_size
+        self.eval_func_factors = eval_func_factors
         self.tournament_size = tournament_size
         self.mutation_rate = mutation_rate
         self.mutation_weights = mutation_weights
         self.crossover_rate = crossover_rate
         self.episodes = episodes
         self.name = name
+        self.magazine = Magazine(vertices=vertices)
+        self._generate_population()
+
+    def _generate_population(self):
+        if self.starting_population:
+            population = [Chromosome(wares=wares, matrix_shape=self.magazine.matrix.shape) for wares in
+                        [self.magazine.generate_magazine_wares(wares_data=self.wares_data) for _ in range(250000)]]
+            self.chromosomes = self._get_best(population, self.population_size)
+            print('Done generating big population')
+        else:
+            self.chromosomes = [Chromosome(wares=wares, matrix_shape=self.magazine.matrix.shape) for wares in
+                                [self.magazine.generate_magazine_wares(wares_data=self.wares_data) for _ in range(self.population_size)]]
 
     def _evaluate_chromosome(self, chromosome: Chromosome):
         new_matrix, filled_space, collisions, wall_collisions, something_nearby = self.magazine.fill_magazine_with_wares(wares=chromosome.wares)
@@ -51,11 +64,13 @@ class EvolutionAlgorithm:
             chromosome.mutate(self.mutation_rate, self.mutation_weights)
         self.chromosomes += elites
 
-    def _get_best(self, chromosomes: List[Chromosome] = None):
+    def _get_best(self, chromosomes: List[Chromosome] = None, n: int = None):
         if chromosomes is None:
             chromosomes = self.chromosomes
+        if n is None:
+            n = self.elite_size
         chromosomes.sort(key=self._evaluate_chromosome, reverse=True)
-        return chromosomes[:self.elite_size]
+        return chromosomes[:n]
 
     def _tournament_selection(self):
         chosen_ones = deepcopy(self._get_best())
@@ -103,12 +118,12 @@ class EvolutionAlgorithm:
 
     def _mutate_best(self, count: int = 300, stagnate: int = 0):
         new_count = int(count*(1.1**stagnate))
-        best = self._get_best()[0]
+        best = self._get_best(n=1)[0]
         to_mutate = [deepcopy(best) for _ in range(new_count)]
         for _ in range(5 + stagnate//2):
             for chromosome in to_mutate:
                 chromosome.mutate(0.8, self.mutation_weights)
-        best_mutated = self._get_best(to_mutate)[0]
+        best_mutated = self._get_best(chromosomes=to_mutate, n=1)[0]
         self.chromosomes.append(best_mutated)
 
     def _get_population_avg_quality(self):
@@ -129,7 +144,7 @@ class EvolutionAlgorithm:
             self._mutate()
             self.selection_func(self)
 
-            best_chromosome = self._get_best()[0]
+            best_chromosome = self._get_best(n=1)[0]
             best_score = self._evaluate_chromosome(best_chromosome)
             best_dict[i] = best_score
             avg_quality_dict[i] = self._get_population_avg_quality()
@@ -140,16 +155,14 @@ class EvolutionAlgorithm:
                 stagnate = 0
             elif stagnate < 20:
                 stagnate += 1
-            self._mutate_best(count, stagnate)
+            if self.mutate_best: self._mutate_best(count, stagnate)
             previous_best = best_score
 
             if i % 5 == 0:
                 self.magazine.save_magazine_to_image(matrix=best_chromosome.matrix, wares=best_chromosome.wares,
                                                         filename=f'output/{self.name}/{i}.png')
-            # if stagnate == 20:
-            #     break
 
-        best_chromosome = self._get_best()[0]
+        best_chromosome = self._get_best(n=1)[0]
         self.magazine.save_magazine_to_image(matrix=best_chromosome.matrix, wares=best_chromosome.wares,
                                              filename=f'output/{self.name}/last.png')
         return best_dict, avg_quality_dict

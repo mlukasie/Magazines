@@ -56,13 +56,18 @@ class Chromosome:
         point1 = randint(0, len(self.wares) - 2)
         point2 = randint(point1 + 1, len(self.wares) - 1)
 
-        child_wares = (
+        child_wares1 = (
                 self.wares[:point1] +
                 other.wares[point1:point2 + 1] +
                 self.wares[point2 + 1:]
         )
+        child_wares2 = (
+                other.wares[:point1] +
+                self.wares[point1:point2 + 1] +
+                other.wares[point2 + 1:]
+        )
 
-        return Chromosome(wares=child_wares, matrix_shape=self.matrix_shape)
+        return Chromosome(wares=choice([child_wares1, child_wares2]), matrix_shape=self.matrix_shape)
 
 
 
