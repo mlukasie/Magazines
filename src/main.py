@@ -363,7 +363,7 @@ def plot_results(results_directory):
         for run in method_runs
     )
 
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(4, 2))
     for method_name, runs in all_best_scores.items():
         avg_best_scores = []
         for ep in range(max_episodes + 1):
@@ -378,15 +378,18 @@ def plot_results(results_directory):
 
         plt.plot(range(max_episodes + 1), avg_best_scores, label=f"{method_name} (best score)")
 
-    plt.title("Average Best Scores Across Methods")
-    plt.xlabel("Episode")
-    plt.ylabel("Average Best Score")
-    plt.legend()
+
+
+    plt.title("Average Best Scores Across Methods", fontsize=6)
+    plt.xlabel("Episode", fontsize=6)
+    plt.ylabel("Average Best Score", fontsize=6)
+    plt.legend(fontsize=6)
+    plt.tick_params(axis='both', which='major', labelsize=6)
     plt.grid(True)
     plt.savefig(os.path.join(results_directory, "avg_best_scores_comparison.png"))
     plt.close()
 
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(4, 2))
     for method_name, runs in all_avg_qualities.items():
         avg_qualities = []
         for ep in range(max_episodes + 1):
@@ -401,10 +404,11 @@ def plot_results(results_directory):
 
         plt.plot(range(max_episodes + 1), avg_qualities, label=f"{method_name} (avg quality)")
 
-    plt.title("Average Population Quality Across Methods")
-    plt.xlabel("Episode")
-    plt.ylabel("Average Population Quality")
-    plt.legend()
+    plt.title("Average Population Quality Across Methods", fontsize=6)
+    plt.xlabel("Episode", fontsize=6)
+    plt.ylabel("Average Population Quality", fontsize=6)
+    plt.legend(fontsize=6)
+    plt.tick_params(axis='both', which='major', labelsize=6)
     plt.grid(True)
     plt.savefig(os.path.join(results_directory, "avg_quality_comparison.png"))
     plt.close()
@@ -415,3 +419,5 @@ def plot_results(results_directory):
 if __name__ == '__main__':
     plot_results('./output/results_elite_size/')
     plot_results('./output/results_algorithm_modifications/')
+    plot_results('./output/results/')
+    plot_results('./output/results_parameters/')
