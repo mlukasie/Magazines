@@ -1,4 +1,4 @@
-# Rozmieszczenie towarów w magazynie 2D za pomocą algorytmu ewolucyjnego
+# Projekt Wstępny: Rozmieszczenie towarów w magazynie 2D za pomocą algorytmu ewolucyjnego
 
 ## 1. Opis projektu
 
